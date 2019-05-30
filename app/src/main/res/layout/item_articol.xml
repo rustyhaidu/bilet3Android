@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"   >
+
+    <TextView
+        android:id="@+id/articol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="foo"
+        android:ems="10"/>
+
+    <TextView
+        android:id="@+id/tvabstract"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/articol"
+        android:text="bar"
+        android:ems="10"/>
+
+    <TextView
+        android:id="@+id/autori"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tvabstract"
+        android:text="bar"
+        android:ems="10"/>
+</RelativeLayout>

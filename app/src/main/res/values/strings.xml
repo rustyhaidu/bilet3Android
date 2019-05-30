@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Bilet3</string>
+    <string name="inregistrare_articol">Inregistrare articol</string>
+    <string name="lista_articole">Lista Articole</string>
+    <string name="preluare_articole_json_sau_xml">Preluare articole JSON sau XML</string>
+    <string name="raport">Raport</string>
+    <string name="despre">Despre</string>
+</resources>
