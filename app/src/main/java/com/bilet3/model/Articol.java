@@ -1,7 +1,6 @@
 package com.bilet3.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class Articol implements Serializable {
     private String titlu;

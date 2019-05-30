@@ -15,11 +15,16 @@ import java.util.List;
 
 public class ArticolAdapter extends ArrayAdapter {
 
-    private Articol mArticol;
-    private List list = new ArrayList();
+    private List<Object> list = new ArrayList<>();
 
     public ArticolAdapter(Context context, int resource) {
         super(context, resource);
+    }
+
+    @Override
+    public void add(Object object) {
+        super.add(object);
+        list.add(object);
     }
 
     public int getCount() {
@@ -39,7 +44,7 @@ public class ArticolAdapter extends ArrayAdapter {
             LayoutInflater layoutInflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             row = layoutInflater.inflate(R.layout.item_articol, parent, false);
             articolHandler = new ArticolHandler();
-            articolHandler.tvTitlu = row.findViewById(R.id.titlu);
+            articolHandler.tvTitlu = row.findViewById(R.id.articol);
             articolHandler.tvAbstract = row.findViewById(R.id.tvabstract);
             articolHandler.tvAutori = row.findViewById(R.id.autori);
 
@@ -48,10 +53,11 @@ public class ArticolAdapter extends ArrayAdapter {
             articolHandler = (ArticolHandler) row.getTag();
         }
 
-        Articol mArticol = (Articol) this.getItem(position);
-        articolHandler.tvTitlu.setText(mArticol.getTitlu());
-        articolHandler.tvAbstract.setText(mArticol.getAbstractArticol());
-        articolHandler.tvAutori.setText(mArticol.getAutori());
+        Articol articol = (Articol) this.getItem(position);
+
+        articolHandler.tvTitlu.setText(articol.getTitlu());
+        articolHandler.tvAbstract.setText(articol.getAbstractArticol());
+        articolHandler.tvAutori.setText(articol.getAutori());
 
         return row;
     }

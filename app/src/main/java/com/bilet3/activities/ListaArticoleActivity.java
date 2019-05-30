@@ -8,6 +8,9 @@ import com.bilet3.R;
 import com.bilet3.adapters.ArticolAdapter;
 import com.bilet3.model.Articol;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ListaArticoleActivity extends AppCompatActivity {
 
     private ArticolAdapter mArticolAdapter;
