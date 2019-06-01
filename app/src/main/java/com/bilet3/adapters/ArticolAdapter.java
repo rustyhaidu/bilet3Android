@@ -1,6 +1,7 @@
 package com.bilet3.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import com.bilet3.R;
 import com.bilet3.model.Articol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class ArticolAdapter extends ArrayAdapter {
@@ -25,6 +28,18 @@ public class ArticolAdapter extends ArrayAdapter {
     public void add(Object object) {
         super.add(object);
         list.add(object);
+    }
+
+    @Override
+    public void addAll(Object[] items) {
+        super.addAll(items);
+        list.addAll(Arrays.asList(items));
+    }
+
+    @Override
+    public void addAll(Collection collection) {
+        super.addAll(collection);
+        list.addAll(collection);
     }
 
     public int getCount() {
