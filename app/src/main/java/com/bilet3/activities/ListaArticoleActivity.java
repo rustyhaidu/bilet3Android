@@ -8,11 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bilet3.R;
 import com.bilet3.adapters.ArticolAdapter;
 import com.bilet3.db.ArticoleDbHelper;
 import com.bilet3.model.Articol;
+import com.bilet3.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
@@ -23,6 +25,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -72,27 +75,28 @@ public class ListaArticoleActivity extends AppCompatActivity {
         mArticolAdapter = new ArticolAdapter(getApplicationContext(), R.layout.item_articol);
         mArticolAdapter.addAll(articolList);
         attachSelectArticleFromList();
+        attachDeleteArticleFromList();
         mListView.setAdapter(mArticolAdapter);
     }
 
-    public void load(){
+    public void load() {
         articolList = new ArrayList<>();
         FileInputStream fileInputStream = null;
 
-        try{
+        try {
             fileInputStream = openFileInput(FILE_NAME);
             InputStreamReader isr = new InputStreamReader(fileInputStream);
             BufferedReader br = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();
             String text;
 
-            while((text = br.readLine()) != null){
+            while ((text = br.readLine()) != null) {
                 sb.append(text);
             }
 
             JSONArray jsonArray = new JSONArray(sb.toString());
             Gson gson = new Gson();
-            for(int i = 0; i< jsonArray.length(); i++){
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.optJSONObject(i);
                 JsonElement jsonElement = gson.fromJson(jsonObject.toString(), JsonElement.class);
                 Articol articol = gson.fromJson(jsonElement, Articol.class);
@@ -106,17 +110,17 @@ public class ListaArticoleActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         } finally {
-            if(fileInputStream != null){
-                try{
+            if (fileInputStream != null) {
+                try {
                     fileInputStream.close();
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private void attachSelectArticleFromList(){
+    private void attachSelectArticleFromList() {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -129,5 +133,49 @@ public class ListaArticoleActivity extends AppCompatActivity {
         });
     }
 
+    private void attachDeleteArticleFromList() {
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Articol articol = (Articol) mArticolAdapter.getItem(position);
+
+                try {
+                    JSONArray jsonArray = Util.getJSONArray(getApplicationContext());
+                    int index = Util.getJsonArrayIndex(jsonArray, articol);
+                    jsonArray.remove(index);
+
+                    FileOutputStream fileOutputStream;
+                    fileOutputStream = openFileOutput(FILE_NAME, MODE_PRIVATE);
+                    fileOutputStream.write(jsonArray.toString().getBytes());
+
+                    mArticolAdapter.remove(articol);
+                    mArticolAdapter.notifyDataSetChanged();
+
+                    Toast.makeText(ListaArticoleActivity.this, "item removed", Toast.LENGTH_SHORT).show();
+
+                    assert articol != null;
+                    deleteFromDb(articol.getTitlu());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return true;
+            }
+        });
+    }
+
+    public void deleteFromDb(String titlu){
+        ArticoleDbHelper mDbHelper;
+        SQLiteDatabase sqLiteDatabase;
+        mDbHelper = new ArticoleDbHelper(getApplicationContext());
+        sqLiteDatabase = mDbHelper.getWritableDatabase();
+
+        mDbHelper.deleteInformation(titlu, sqLiteDatabase);
+        Util.selectAll(mDbHelper, sqLiteDatabase);
+        mDbHelper.close();
+    }
 
 }

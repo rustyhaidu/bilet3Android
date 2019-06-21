@@ -1,6 +1,7 @@
 package com.bilet3.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Articol implements Serializable {
     private String titlu;
@@ -38,5 +39,20 @@ public class Articol implements Serializable {
 
     public void setAutori(String autori) {
         this.autori = autori;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Articol)) return false;
+        Articol articol = (Articol) o;
+        return titlu.equals(articol.titlu) &&
+                abstractArticol.equals(articol.abstractArticol) &&
+                autori.equals(articol.autori);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(titlu, abstractArticol, autori);
     }
 }

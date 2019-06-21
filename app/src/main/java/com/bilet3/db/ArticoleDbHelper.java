@@ -15,9 +15,9 @@ public class ArticoleDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "bilet3.db";
     private static final int DATABASE_VERSION = 1;
     private static final String CREATE_QUERY = "CREATE TABLE " + ArticolDbInfo.NewArticolInfo.TABLE_NAME +
-            " (" + ArticolDbInfo.NewArticolInfo.TITLU + ", "
-            + ArticolDbInfo.NewArticolInfo.ABSTRACT + " , "
-            + ArticolDbInfo.NewArticolInfo.AUTORI;
+            " (" + ArticolDbInfo.NewArticolInfo.TITLU + " TEXT, "
+            + ArticolDbInfo.NewArticolInfo.ABSTRACT + " TEXT, "
+            + ArticolDbInfo.NewArticolInfo.AUTORI + " TEXT);";
 
 
     public ArticoleDbHelper(Context context) {
@@ -68,15 +68,15 @@ public class ArticoleDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.delete(ArticolDbInfo.NewArticolInfo.TABLE_NAME,selection,selection_args);
 
     }
-    public int updateInformation(String old_name, String new_name, String new_surname, String new_gender, String new_birthdate, SQLiteDatabase sqLiteDatabase)
+    public int updateInformation(String oldTitlu, String titlu, String abstractArticol, String autori, SQLiteDatabase sqLiteDatabase)
     {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ArticolDbInfo.NewArticolInfo.TITLU,new_name);
-        contentValues.put(ArticolDbInfo.NewArticolInfo.ABSTRACT,new_surname);
-        contentValues.put(ArticolDbInfo.NewArticolInfo.AUTORI,new_gender);
+        contentValues.put(ArticolDbInfo.NewArticolInfo.TITLU,titlu);
+        contentValues.put(ArticolDbInfo.NewArticolInfo.ABSTRACT,abstractArticol);
+        contentValues.put(ArticolDbInfo.NewArticolInfo.AUTORI, autori);
 
         String selection = ArticolDbInfo.NewArticolInfo.TITLU + " LIKE ?";
-        String[] selection_args = {old_name};
+        String[] selection_args = {oldTitlu};
 
        int count =  sqLiteDatabase.update(ArticolDbInfo.NewArticolInfo.TABLE_NAME,contentValues,selection,selection_args);
         return count;

@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         mEditTextTitlu = findViewById(R.id.titlu);
         mEditTextAbstractArticol = findViewById(R.id.abstractarticol);
-        mEditTextAutor = findViewById(R.id.autor);
 
         bInregistrare.setOnClickListener(new View.OnClickListener() {
             @Override

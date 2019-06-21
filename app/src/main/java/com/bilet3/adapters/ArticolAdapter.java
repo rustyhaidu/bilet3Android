@@ -31,6 +31,11 @@ public class ArticolAdapter extends ArrayAdapter {
     }
 
     @Override
+    public void remove(Object object){
+        list.remove(object);
+    }
+
+    @Override
     public void addAll(Object[] items) {
         super.addAll(items);
         list.addAll(Arrays.asList(items));

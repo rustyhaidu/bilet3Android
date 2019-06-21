@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bilet3.R;
+import com.bilet3.db.ArticoleDbHelper;
 import com.bilet3.model.Articol;
 import com.bilet3.util.Util;
 
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static com.bilet3.activities.MainActivity.FILE_NAME;
+import static com.bilet3.util.Util.selectAll;
 
 public class InregistrareArticolActivity extends AppCompatActivity {
 
@@ -34,7 +37,7 @@ public class InregistrareArticolActivity extends AppCompatActivity {
     EditText eAbstractArticol;
     EditText eAutori;
     Button creareArticol;
-    //ArticoleDbHelper mDbHelper;
+    ArticoleDbHelper mDbHelper;
     SQLiteDatabase sqLiteDatabase;
 
     @Override
@@ -42,19 +45,19 @@ public class InregistrareArticolActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inregistrarearticol);
 
-        //mDbHelper = new ArticoleDbHelper(getApplicationContext());
-        //sqLiteDatabase = mDbHelper.getWritableDatabase();
+        mDbHelper = new ArticoleDbHelper(getApplicationContext());
+        sqLiteDatabase = mDbHelper.getWritableDatabase();
 
         eTitlu = findViewById(R.id.titlu);
         eAbstractArticol = findViewById(R.id.abstractarticol);
         eAutori = findViewById(R.id.listaautori);
         creareArticol = findViewById(R.id.creerearticol);
 
-        Articol articol;
+        final Articol articol;
         try {
             articol = (Articol) getIntent().getSerializableExtra("Articol");
 
-            if(articol != null){
+            if (articol != null) {
                 creareArticol.setText("Update Articol");
 
                 eTitlu.setText(articol.getTitlu());
@@ -64,17 +67,30 @@ public class InregistrareArticolActivity extends AppCompatActivity {
                 creareArticol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        saveToFile();
+                        String textTitlu = eTitlu.getText().toString();
+                        String textAbstract = eAbstractArticol.getText().toString();
+                        String textAutor = eAutori.getText().toString();
+
+                        Articol articolNew = new Articol(textTitlu, textAbstract, textAutor);
+
+                        updateToFile(articol, articolNew);
+                        updateArticol(articol, articolNew);
 
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     }
                 });
-            }else{
+            } else {
                 creareArticol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        updateToFile();
+                        String textTitlu = eTitlu.getText().toString();
+                        String textAbstract = eAbstractArticol.getText().toString();
+                        String textAutor = eAutori.getText().toString();
 
+                        Articol articol = new Articol(textTitlu, textAbstract, textAutor);
+
+                        saveToFile(articol);
+                        insertToDb(articol);
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     }
                 });
@@ -85,33 +101,32 @@ public class InregistrareArticolActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // final JSONArray jsonArray = Util.getJsonFromAssetFile(this);
-        //mDbHelper.insertInfo(articol.getTitlu(), articol.getAbstractArticol(), articol.getAutori(), sqLiteDatabase);
-        // mDbHelper.close();
     }
 
-    public void saveToFile() {
-        String textTitlu = eTitlu.getText().toString();
-        String textAbstract = eAbstractArticol.getText().toString();
-        String textAutor = eAutori.getText().toString();
-
-        Articol articol = new Articol(textTitlu, textAbstract, textAutor);
+    public void saveToFile(Articol articol) {
 
         FileInputStream fileInputStream = null;
         FileOutputStream fileOutputStream = null;
+        JSONArray jsonArray = null;
 
         try {
-            fileInputStream = openFileInput(FILE_NAME);
-            InputStreamReader isr = new InputStreamReader(fileInputStream);
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String text;
+            File file = new File(FILE_NAME);
 
-            while ((text = br.readLine()) != null) {
-                sb.append(text);
+            if (file.exists()) {
+                fileInputStream = openFileInput(FILE_NAME);
+                InputStreamReader isr = new InputStreamReader(fileInputStream);
+                BufferedReader br = new BufferedReader(isr);
+                StringBuilder sb = new StringBuilder();
+                String text;
+
+                while ((text = br.readLine()) != null) {
+                    sb.append(text);
+                }
+                jsonArray = new JSONArray(sb.toString());
+            } else {
+                jsonArray = new JSONArray();
             }
 
-            JSONArray jsonArray = new JSONArray(sb.toString());
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("titlu", articol.getTitlu());
             jsonObject.put("abstractArticol", articol.getAbstractArticol());
@@ -142,14 +157,10 @@ public class InregistrareArticolActivity extends AppCompatActivity {
         }
     }
 
-    public void updateToFile() {
-        String textTitlu = eTitlu.getText().toString();
-        String textAbstract = eAbstractArticol.getText().toString();
-        String textAutor = eAutori.getText().toString();
+    public void updateToFile(Articol articolOld, Articol articolNew) {
+        //Articol articol = new Articol(textTitlu, textAbstract, textAutor);
 
-        Articol articol = new Articol(textTitlu, textAbstract, textAutor);
-
-        FileInputStream fileInputStream = null;
+        FileInputStream fileInputStream;
         FileOutputStream fileOutputStream = null;
 
         try {
@@ -164,18 +175,14 @@ public class InregistrareArticolActivity extends AppCompatActivity {
             }
 
             JSONArray jsonArray = new JSONArray(sb.toString());
+            int index = Util.getJsonArrayIndex(jsonArray, articolOld);
             JSONObject jsonObject = new JSONObject();
 
-            for(int i = 0; i < jsonArray.length(); i++){
-                //jsonObject = jsonArray.get()
-            }
+            jsonObject.put("titlu", articolNew.getTitlu());
+            jsonObject.put("abstractArticol", articolNew.getAbstractArticol());
+            jsonObject.put("autori", articolNew.getAutori());
 
-
-            jsonObject.put("titlu", articol.getTitlu());
-            jsonObject.put("abstractArticol", articol.getAbstractArticol());
-            jsonObject.put("autori", articol.getAutori());
-
-            jsonArray.put(jsonObject);
+            jsonArray.put(index, jsonObject);
 
             fileOutputStream = openFileOutput(FILE_NAME, MODE_PRIVATE);
             fileOutputStream.write(jsonArray.toString().getBytes());
@@ -198,5 +205,18 @@ public class InregistrareArticolActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    public void insertToDb(Articol articol) {
+        mDbHelper.insertInfo(articol.getTitlu(), articol.getAbstractArticol(), articol.getAutori(), sqLiteDatabase);
+        selectAll(mDbHelper, sqLiteDatabase);
+        mDbHelper.close();
+    }
+
+
+    private void updateArticol(Articol articolOld, Articol articolNew) {
+        mDbHelper.updateInformation(articolOld.getTitlu(), articolNew.getTitlu(), articolNew.getAbstractArticol(), articolNew.getAutori(), sqLiteDatabase);
+        selectAll(mDbHelper, sqLiteDatabase);
+        mDbHelper.close();
     }
 }
